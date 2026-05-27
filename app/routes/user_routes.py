@@ -1,18 +1,15 @@
 from fastapi import APIRouter
-from app.schemas import CrearUsuario
+from app.schemas.user_schema import CrearUsuario, user_db
 
-router = APIRouter(
-    prefix="/users",
-    tags=["users"],
-)
+router = APIRouter()
 
 # Rutas GET
 
 ##GET /users
 
-@router.get("/")
-def obtener_usuarios():
-    return
+@router.get("/users/")
+async def obtener_usuarios():
+    return user_db
 
 ##GET /users/{user_id}
 
@@ -32,6 +29,7 @@ def obtener_usuarios():
 
 ##POST /users
 
-@router.post("/")
-def crear_usuario(user: CrearUsuario):
+@router.post("/users/")
+async def crear_usuario(user: CrearUsuario):
+    user_db.append(user)
     return {"mensaje": f"Usuario {user.name} fue creado con exito"}
