@@ -13,7 +13,11 @@ async def obtener_usuarios():
 
 ##GET /users/{user_id}
 
-
+@router.get("/users/{user_id}")
+async def obtener_usuario(user_id: int):
+    for user in user_db:
+        if user.id == user_id:
+            return user 
 
 ##GET /users?role=admin
 
