@@ -17,3 +17,12 @@ class CrearUsuario(BaseModel):
     email: EmailStr
     role: roles = Field(default="user")
     is_active: bool
+
+class UsuarioResponse(BaseModel):
+    id: int
+    name: str
+    email: EmailStr
+    role: roles
+    is_active: bool = True
+
+    model_config = {"from attributes": True}    
