@@ -1,5 +1,6 @@
 from fastapi import APIRouter
-from app.schemas.user_schema import CrearUsuario, user_db, UsuarioResponse, get_next_id
+from app.schemas.user_schema import CrearUsuario, UsuarioResponse, get_next_id
+from app.data.user_db import user_db
 from typing import Optional
 
 router = APIRouter()

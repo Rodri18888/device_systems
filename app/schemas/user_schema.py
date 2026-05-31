@@ -3,8 +3,6 @@ from pydantic import BaseModel, EmailStr, Field
 
 _id_counter = 0
 
-user_db = []
-
 def get_next_id() -> int:
     global _id_counter
     _id_counter += 1
