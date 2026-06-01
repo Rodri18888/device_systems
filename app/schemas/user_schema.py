@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Literal, Optional
 from pydantic import BaseModel, EmailStr, Field
 
 _id_counter = 0
@@ -11,10 +11,17 @@ def get_next_id() -> int:
 roles = Literal['admin', 'support', 'user']
 class CrearUsuario(BaseModel):
     id: int = Field(default_factory=get_next_id)
-    name: str = Field(min_lenght=3)
+    name: str = Field(min_length=3)
     email: EmailStr
     role: roles = Field(default="user")
     is_active: bool
+
+class UsuarioPatch(BaseModel):
+    id: int  
+    name: Optional[str] = Field(default=None, min_length=3)
+    email: Optional[EmailStr] = None
+    role: Optional[roles] = None  
+    is_active: Optional[bool] = None
 
 class UsuarioResponse(BaseModel):
     id: int

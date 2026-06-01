@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.schemas.user_schema import CrearUsuario, UsuarioResponse, get_next_id
+from app.schemas.user_schema import CrearUsuario, UsuarioPatch, UsuarioResponse, get_next_id
 from app.data.user_db import user_db
 from typing import Optional
 
@@ -53,6 +53,7 @@ async def actualizar_usuario_put(user_id: int, user: CrearUsuario):
     for i, u in enumerate(user_db):
         if u["id"] == user_id:
             user_i = i
+            break
             
     
     new_user = {"id": user_id, "name": user.name, "email": user.email, "role": user.role, "is_active": user.is_active}
@@ -65,5 +66,31 @@ async def actualizar_usuario_put(user_id: int, user: CrearUsuario):
 ##PATCH /users/{user_id}
 
 @router.patch("/users/{user_id}", response_model=UsuarioResponse)
-async def actualizar_usuario_patch(user_id: int, user: CrearUsuario):
+async def actualizar_usuario_patch(user_id: int, user: UsuarioPatch):
     
+    user_i = None
+
+    for i, u in enumerate(user_db):
+        if u["id"] == user_id:
+            user_i = i
+            break
+
+    datos_actualizacion = user.model_dump(exclude_unset=True)
+
+    
+    for campo, valor in datos_actualizacion.items():
+        user_db[user_i][campo] = valor
+
+
+
+# Rutas DELETE
+
+##DELETE /users/{user_id}
+    
+@router.delete("/users/{user_id}", response_model=UsuarioResponse)
+async def obtener_usuario(user_id: int):
+    for i, usuario in enumerate(user_db):
+        if usuario["id"] == user_id:
+            usuario_eliminado = user_db.pop(i)
+
+            return usuario_eliminado    
