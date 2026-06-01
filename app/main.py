@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from app.routes import user_routes
 
 # Crear una instancia de la aplicación FastAPI
