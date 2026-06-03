@@ -1,6 +1,7 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, status, Depends, Body
 from app.schemas.user_schema import CrearUsuario, UsuarioPatch, UsuarioResponse, get_next_id
 from app.data.user_db import user_db
+from app.dependencies.user_dependencies import buscar_por_id
 from typing import Optional
 
 router = APIRouter()
@@ -25,17 +26,15 @@ async def obtener_usuarios(role: Optional[str] = None, is_active: Optional[bool]
 ##GET /users/{user_id}
 
 @router.get("/users/{user_id}", response_model=UsuarioResponse)
-async def obtener_usuario(user_id: int):
-    for user in user_db:
-        if user["id"] == user_id:
-            return user 
+async def obtener_usuario(user:  dict = Depends(buscar_por_id)):
+    return user
 
 
 # Rutas POST
 
 ##POST /users
 
-@router.post("/users/", response_model=UsuarioResponse)
+@router.post("/users/", status_code=status.HTTP_201_CREATED, response_model=UsuarioResponse)
 async def crear_usuario(user: CrearUsuario):
     nuevo = {"id": get_next_id(), **user.model_dump()}
     user_db.append(nuevo)
@@ -47,16 +46,16 @@ async def crear_usuario(user: CrearUsuario):
 ##PUT /users/{user_id}
 
 @router.put("/users/{user_id}", response_model=UsuarioResponse)
-async def actualizar_usuario_put(user_id: int, user: CrearUsuario):
-    user_i = None
+async def actualizar_usuario_put(user: CrearUsuario, user_id: int, user_actual: dict = Depends(buscar_por_id)):
+        
+    
+    new_user = {"id": user_id, "name": user.name, "email": user.email, "role": user.role, "is_active": user.is_active}
 
+    user_i = None
     for i, u in enumerate(user_db):
         if u["id"] == user_id:
             user_i = i
             break
-            
-    
-    new_user = {"id": user_id, "name": user.name, "email": user.email, "role": user.role, "is_active": user.is_active}
 
     user_db[user_i] = new_user
 
@@ -66,22 +65,16 @@ async def actualizar_usuario_put(user_id: int, user: CrearUsuario):
 ##PATCH /users/{user_id}
 
 @router.patch("/users/{user_id}", response_model=UsuarioResponse)
-async def actualizar_usuario_patch(user_id: int, user: UsuarioPatch):
+async def actualizar_usuario_patch(user_id: int, user: UsuarioPatch = Body(...), user_actual: dict = Depends(buscar_por_id)):
     
-    user_i = None
-
-    for i, u in enumerate(user_db):
-        if u["id"] == user_id:
-            user_i = i
-            break
-
     datos_actualizacion = user.model_dump(exclude_unset=True)
 
     
     for campo, valor in datos_actualizacion.items():
-        user_db[user_i][campo] = valor
+        user_actual[campo] = valor
 
-    return user_db[user_i]    
+
+    return user_actual  
 
 
 
@@ -90,9 +83,7 @@ async def actualizar_usuario_patch(user_id: int, user: UsuarioPatch):
 ##DELETE /users/{user_id}
     
 @router.delete("/users/{user_id}", response_model=UsuarioResponse)
-async def obtener_usuario(user_id: int):
-    for i, usuario in enumerate(user_db):
-        if usuario["id"] == user_id:
-            usuario_eliminado = user_db.pop(i)
+async def obtener_usuario(user_i: int = Depends(buscar_por_id)):
+            usuario_eliminado = user_db.pop(user_i)
 
             return usuario_eliminado    
