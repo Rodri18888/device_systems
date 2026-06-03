@@ -17,7 +17,6 @@ class CrearUsuario(BaseModel):
     is_active: bool
 
 class UsuarioPatch(BaseModel):
-    id: int  
     name: Optional[str] = Field(default=None, min_length=3)
     email: Optional[EmailStr] = None
     role: Optional[roles] = None  
@@ -30,4 +29,4 @@ class UsuarioResponse(BaseModel):
     role: roles
     is_active: bool = True
 
-    model_config = {"from attributes": True}    
+    model_config = {"from_attributes": True}    

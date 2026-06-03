@@ -81,6 +81,8 @@ async def actualizar_usuario_patch(user_id: int, user: UsuarioPatch):
     for campo, valor in datos_actualizacion.items():
         user_db[user_i][campo] = valor
 
+    return user_db[user_i]    
+
 
 
 # Rutas DELETE
