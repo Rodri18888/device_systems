@@ -10,7 +10,11 @@ router = APIRouter()
 
 ##GET /users
 
-@router.get("/users/", response_model=list[UsuarioResponse])
+@router.get("/users/", tags=["Users"],
+    summary="Obtener todos los usuarios",
+    description="Obtiene cada usuario del sistema con su informacion",
+    response_description="Usuarios obtenidos con exito",
+    response_model=list[UsuarioResponse])
 async def obtener_usuarios(role: Optional[str] = None, is_active: Optional[bool] = None):
     
     if role:
@@ -25,7 +29,11 @@ async def obtener_usuarios(role: Optional[str] = None, is_active: Optional[bool]
 
 ##GET /users/{user_id}
 
-@router.get("/users/{user_id}", response_model=UsuarioResponse)
+@router.get("/users/{user_id}", tags=["Users"],
+    summary="Obtener un usuario por id",
+    description="Obtiene un usuario segun la id indicada en la ruta",
+    response_description="Usuario obtenido con exito", 
+    response_model=UsuarioResponse)
 async def obtener_usuario(user:  dict = Depends(buscar_por_id)):
     return user
 
@@ -34,7 +42,11 @@ async def obtener_usuario(user:  dict = Depends(buscar_por_id)):
 
 ##POST /users
 
-@router.post("/users/", status_code=status.HTTP_201_CREATED, response_model=UsuarioResponse)
+@router.post("/users/", tags=["Users"],
+    summary="Enviar un usuario al sistema",
+    description="Envia un usuario con los datos indicados",
+    response_description="Usuario enviado con exito", 
+    status_code=status.HTTP_201_CREATED, response_model=UsuarioResponse)
 async def crear_usuario(user: CrearUsuario):
     nuevo = {"id": get_next_id(), **user.model_dump()}
     user_db.append(nuevo)
@@ -45,7 +57,11 @@ async def crear_usuario(user: CrearUsuario):
 
 ##PUT /users/{user_id}
 
-@router.put("/users/{user_id}", response_model=UsuarioResponse)
+@router.put("/users/{user_id}", tags=["Users"],
+    summary="Actualizar un usuario",
+    description="Actualiza todos los datos de un usuario",
+    response_description="Usuario actualizado con exito", 
+    response_model=UsuarioResponse)
 async def actualizar_usuario_put(user: CrearUsuario, user_id: int, user_actual: dict = Depends(buscar_por_id)):
         
     
@@ -64,7 +80,11 @@ async def actualizar_usuario_put(user: CrearUsuario, user_id: int, user_actual: 
 
 ##PATCH /users/{user_id}
 
-@router.patch("/users/{user_id}", response_model=UsuarioResponse)
+@router.patch("/users/{user_id}", tags=["Users"],
+    summary="Actualizar un usuario",
+    description="Actualiza uno o mas datos de un usuario",
+    response_description="Usuarios actualizado con exito", 
+    response_model=UsuarioResponse)
 async def actualizar_usuario_patch(user_id: int, user: UsuarioPatch = Body(...), user_actual: dict = Depends(buscar_por_id)):
     
     datos_actualizacion = user.model_dump(exclude_unset=True)
@@ -82,8 +102,18 @@ async def actualizar_usuario_patch(user_id: int, user: UsuarioPatch = Body(...),
 
 ##DELETE /users/{user_id}
     
-@router.delete("/users/{user_id}", response_model=UsuarioResponse)
-async def obtener_usuario(user_i: int = Depends(buscar_por_id)):
-            usuario_eliminado = user_db.pop(user_i)
+@router.delete("/users/{user_id}", tags=["Users"],
+    summary="Eliminar un usuario",
+    description="Elimina un usuario del sistema segun la id indicada",
+    response_description="Usuario eliminado con exito", 
+    response_model=UsuarioResponse)
+async def obtener_usuario(user_id: int, user_i: dict = Depends(buscar_por_id)):
+    user_i = None
+    for i, u in enumerate(user_db):
+        if u["id"] == user_id:
+            user_i = i
+            break
 
-            return usuario_eliminado    
+    usuario_eliminado = user_db.pop(user_i)
+
+    return usuario_eliminado    

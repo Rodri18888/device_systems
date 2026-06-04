@@ -2,7 +2,12 @@ from fastapi import FastAPI, Request
 from app.routes import user_routes
 
 # Crear una instancia de la aplicación FastAPI
-app = FastAPI()
+app = FastAPI(
+    title="device_systems API",
+    description="API REST para la gestión de usuarios del sistema device_systems",
+    version="2.0.0",
+    autor="Rodrigo Velez"
+)
 
 # Middleware de cabeceras http
 @app.middleware("http")
@@ -18,6 +23,9 @@ app.include_router(
 )
 
 # Definir una ruta básica
-@app.get("/")
+@app.get("/",
+    summary="Ruta basica",
+    description="Ruta basica/principal del sistema",
+    response_description="mensaje: Servidor corriendo exitosamente")
 def read_root():
     return {"mensaje": "Servidor corriendo exitosamente"}
