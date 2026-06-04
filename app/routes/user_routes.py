@@ -48,7 +48,7 @@ async def obtener_usuario(user:  dict = Depends(buscar_por_id)):
     response_description="Usuario enviado con exito", 
     status_code=status.HTTP_201_CREATED, response_model=UsuarioResponse)
 async def crear_usuario(user: CrearUsuario):
-    nuevo = {"id": get_next_id(), **user.model_dump()}
+    nuevo = user.model_dump()
     user_db.append(nuevo)
     return nuevo
 

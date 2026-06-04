@@ -1,3 +1,9 @@
 user_db = [
-    {"id": 1, "name": "Alice", "email": "alice@email.com", "role": "admin", "is_active": True}
+    {
+  "id": 1,      
+  "name": "Rodrigo",
+  "email": "rodrigovelezdiaz@gmail.com",
+  "role": "user",
+  "is_active": True
+}
 ]
