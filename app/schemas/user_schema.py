@@ -1,7 +1,13 @@
 from typing import Literal, Optional
 from pydantic import BaseModel, EmailStr, Field
+from app.data.user_db import user_db
 
-_id_counter = 0
+def _init_counter() -> int:
+    if not user_db:
+        return 0
+    return max(user["id"] for user in user_db)
+
+_id_counter = _init_counter()
 
 def get_next_id() -> int:
     global _id_counter
