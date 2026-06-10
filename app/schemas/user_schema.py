@@ -35,4 +35,5 @@ class UserResponse(BaseModel):
     role: roles
     is_active: bool = True
 
-    model_config = {"from_attributes": True}    
+    class Config:
+        from_attributes = True    
