@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException, Query
 from app.data.user_db import user_db
-from app.schemas.user_schema import CrearUsuario
+from app.schemas.user_schema import UserCreate
 
 app = FastAPI()
 

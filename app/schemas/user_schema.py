@@ -15,20 +15,20 @@ def get_next_id() -> int:
     return _id_counter
 
 roles = Literal['admin', 'support', 'user']
-class CrearUsuario(BaseModel):
+class UserCreate(BaseModel):
     id: int = Field(default_factory=get_next_id)
     name: str = Field(min_length=3)
     email: EmailStr
     role: roles = Field(default="user")
     is_active: bool
 
-class UsuarioPatch(BaseModel):
+class UserPatch(BaseModel):
     name: Optional[str] = Field(default=None, min_length=3)
     email: Optional[EmailStr] = None
     role: Optional[roles] = None  
     is_active: Optional[bool] = None
 
-class UsuarioResponse(BaseModel):
+class UserResponse(BaseModel):
     id: int
     name: str
     email: EmailStr
