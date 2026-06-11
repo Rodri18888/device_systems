@@ -22,6 +22,12 @@ class UserCreate(BaseModel):
     role: roles = Field(default="user")
     is_active: bool
 
+class UserUpdate(BaseModel):
+    name: str = Field(min_length=3)
+    email: EmailStr
+    role: roles = Field(default="user")
+    is_active: bool
+
 class UserPatch(BaseModel):
     name: Optional[str] = Field(default=None, min_length=3)
     email: Optional[EmailStr] = None
