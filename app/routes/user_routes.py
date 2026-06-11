@@ -1,4 +1,4 @@
-from fastapi import APIRouter, status, Depends, Body
+from fastapi import APIRouter, status, Depends, Body, Response
 from app.schemas.user_schema import UserCreate, UserPatch, UserResponse, UserUpdate, get_next_id
 from sqlalchemy.orm import Session
 from app.services.user_service import *
@@ -99,9 +99,9 @@ async def actualizar_usuario_endpoint(
     summary="Eliminar un usuario",
     description="Elimina un usuario del sistema segun la id indicada",
     response_description="Usuario eliminado con exito", 
-    response_model=UserResponse)
+    status_code=status.HTTP_204_NO_CONTENT)
 async def eliminar_usuario_endpoint(usuario_id: int, db: Session = Depends(get_db)):
     eliminado = eliminar_usuario(db=db, usuario_id=usuario_id)
     if not eliminado:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
-    return {"mensaje": "Usuario eliminado correctamente"}    
+    return Response(status_code=status.HTTP_204_NO_CONTENT)    
