@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
-from app.models import User
-from app.schemas import UserCreate, UserPatch, UserUpdate, UserResponse
+from app.models.user_model import User
+from app.schemas.user_schema import UserCreate, UserPatch, UserUpdate, UserResponse
 
 
 ##Crear usuario.
@@ -16,7 +16,7 @@ def crear_usuario(db: Session, usuario_data: UserCreate):
 
     db.add(db_usuario)
 
-    db.commit
+    db.commit()
 
     db.refresh(db_usuario)
 
@@ -64,6 +64,7 @@ def actualizar_usuario(db: Session, usuario_id: int, usuario_data: UserUpdate):
 
 def actualizar_usuario_parcial(db: Session, usuario_id: int, usuario_data: UserPatch):
 
+    db_usuario = db.query(User).filter(User.id == usuario_id).first()
     update_data = usuario_data.model_dump(exclude_unset=True)
 
     for key, value in update_data.items():
