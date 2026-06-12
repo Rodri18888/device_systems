@@ -1,9 +1,10 @@
-from fastapi import APIRouter, status, Depends, Body, Response
-from app.schemas.user_schema import UserCreate, UserPatch, UserResponse, UserUpdate, get_next_id
+from fastapi import APIRouter, status, Depends, Response, HTTPException
+from app.schemas.user_schema import UserCreate, UserPatch, UserResponse, UserUpdate
 from sqlalchemy.orm import Session
 from app.services.user_service import *
 from app.dependencies.database_dependencies import get_db
 from app.database.connection import engine, Base
+from typing import List
 
 Base.metadata.create_all(bind=engine)
 
@@ -105,3 +106,35 @@ async def eliminar_usuario_endpoint(usuario_id: int, db: Session = Depends(get_d
     if not eliminado:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     return Response(status_code=status.HTTP_204_NO_CONTENT)    
+
+
+# Rutas FILTROS/ORDEN
+
+##GET /users/role/{usuario_role}
+
+@router.get("/users/role/{usuario_role}", tags=["Users"],
+    summary="Obtener los usuarios por rol",
+    description="Obtiene los usuarios según el rol indicado en la ruta",
+    response_description="Usuarios obtenidos con éxito", 
+    response_model=List[UserResponse]) 
+async def filtro_rol_endpoint(usuario_role: str, db: Session = Depends(get_db)):
+    return filtro_rol(db=db, usuario_rol=usuario_role)
+
+
+@router.get("/users/state/{usuario_state}", tags=["Users"],
+    summary="Obtener los usuarios por estado",
+    description="Obtiene los usuarios según el estado indicado en la ruta",
+    response_description="Usuarios obtenidos con éxito", 
+    response_model=List[UserResponse]) 
+async def filtro_estado_endpoint(usuario_state: bool, db: Session = Depends(get_db)):
+    return filtro_estado(db=db, usuario_estado=usuario_state)
+
+##GET /users/search/created_at
+
+@router.get("/users/search/created_at", tags=["Users"],
+    summary="Obtener todos los usuarios por fecha de creacion",
+    description="Obtiene todos los usuarios ordenados de forma ascendente segun su fecha de creacion",
+    response_description="Usuarios obtenidos con éxito", 
+    response_model=List[UserResponse]) 
+async def usuarios_fecha_creacion_endpoint(db: Session = Depends(get_db)):
+    return usuarios_fecha_creacion(db=db)

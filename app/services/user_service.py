@@ -91,18 +91,16 @@ def eliminar_usuario(db: Session, usuario_id: int):
 ##Filtrar usuarios por rol.
 
 def filtro_rol(db: Session, usuario_rol: str):
-
     return db.query(User).filter(
-        User.role.contains(usuario_rol)
+        User.role.contains(usuario_rol) 
     ).all()
 
 
-##Filtrar usuarios por estado.
+##Filtrar usuarios por estado
 
 def filtro_estado(db: Session, usuario_estado: bool):
-
     return db.query(User).filter(
-        User.is_active.contains(usuario_estado)
+        User.is_active == usuario_estado 
     ).all()
 
 
