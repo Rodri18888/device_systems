@@ -1,5 +1,5 @@
 from fastapi import APIRouter, status, Depends, Response, HTTPException
-from app.schemas.user_schema import UserCreate, UserPatch, UserResponse, UserUpdate
+from app.schemas.user_schema import UserCreate, UserPatch, UserResponse, UserUpdate, roles
 from sqlalchemy.orm import Session
 from app.services.user_service import *
 from app.dependencies.database_dependencies import get_db
@@ -50,7 +50,12 @@ async def obtener_usuario_endpoint(usuario_id: int, db: Session = Depends(get_db
     response_description="Usuario enviado con exito", 
     status_code=status.HTTP_201_CREATED, response_model=UserResponse)
 async def crear_usuario_endpoint(usuario: UserCreate, db: Session = Depends(get_db)):
-     return crear_usuario(db=db, usuario_data=usuario)
+
+    email_existente = db.query(User).filter(User.email == usuario.email).first()
+    if email_existente:
+        raise HTTPException(status_code=400, detail="Email duplicado")   
+    
+    return crear_usuario(db=db, usuario_data=usuario)
 
 
 # Rutas PUT y PATCH
