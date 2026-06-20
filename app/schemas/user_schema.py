@@ -1,22 +1,9 @@
 from typing import Literal, Optional
 from pydantic import BaseModel, EmailStr, Field
-from app.data.user_db import user_db
 
-def _init_counter() -> int:
-    if not user_db:
-        return 0
-    return max(user["id"] for user in user_db)
-
-_id_counter = _init_counter()
-
-def get_next_id() -> int:
-    global _id_counter
-    _id_counter += 1
-    return _id_counter
 
 roles = Literal['admin', 'support', 'user']
 class UserCreate(BaseModel):
-    id: int = Field(default_factory=get_next_id)
     name: str = Field(min_length=3)
     email: EmailStr
     role: roles = Field(default="user")
