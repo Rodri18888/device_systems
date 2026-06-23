@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.database.connection import Base
 
+
 class Loan(Base):
     __tablename__ = "loans"
 

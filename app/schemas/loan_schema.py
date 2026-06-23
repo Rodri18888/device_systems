@@ -1,50 +1,52 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, model_validator
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Self
 
-
-class UserMinimalResponse(BaseModel):
-    id: int
-    name: str 
-    email: str
-
-    model_config = ConfigDict(from_attributes=True)
-
-class DeviceMinimalResponse(BaseModel):
-    id: int
-    name: str 
-    status: str
-
-    model_config = ConfigDict(from_attributes=True)
-
-
-class LoanCreate(LoanBase):
+class LoanCreate(BaseModel):
     user_id: int
     device_id: int
+
+class UserEnPrestamo(BaseModel):
+    id: int
+    name: str
+    email: str
+
+    model_config = {"from_attributes": True}
+
+class DeviceEnPrestamo(BaseModel):
+    id: int
+    name: str
+    serial_number: str
+    device_type: str
+
+    model_config = {"from_attributes": True}
+
+class LoanResponse(BaseModel):
+    id: int
+    user_id: int
+    device_id: int
+    loan_date: datetime
+    return_date: Optional[datetime]
     status: str
 
+    model_config = {"from_attributes": True}
 
+class LoanDetailResponse(BaseModel):
+    loan_id: int
+    status: str
+    user: UserEnPrestamo
+    device: DeviceEnPrestamo
 
-class LoanUpdate(BaseModel):
-    user_id: Optional[int] = None
-    device_id: Optional[int] = None
-    return_date: Optional[datetime] = None
-    status: Optional[str] = None
+    model_config = {"from_attributes": True}
 
-
-
-class LoanResponse(LoanBase):
-    id: int
-    loan_date: datetime
-    return_date: Optional[datetime] = None
-
-
-    model_config = ConfigDict(from_attributes=True)
-
-
-
-class LoanDetailResponse(LoanResponse):
-    user: UserMinimalResponse
-    device: DeviceMinimalResponse
-
-    model_config = ConfigDict(from_attributes=True)
+    @model_validator(mode="before")
+    @classmethod
+    def mapear_campos(cls, data: Self):
+        if hasattr(data, "__dict__"):
+            return {
+                "loan_id": data.id,
+                "status": data.status,
+                "user": data.user,
+                "device": data.device,
+            }
+        return data

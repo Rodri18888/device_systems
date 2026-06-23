@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.database.connection import Base
 
+
 class Device(Base):
     __tablename__ = "devices"
 
@@ -14,4 +15,4 @@ class Device(Base):
     is_available = Column(Boolean, nullable=False, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    loans = relationship("Loan", back_populates="devices")
+    loans = relationship("Loan", back_populates="device")

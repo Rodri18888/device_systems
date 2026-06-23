@@ -86,7 +86,7 @@ async def actualizar_usuario_endpoint(
     description="Actualiza uno o mas datos de un usuario",
     response_description="Usuarios actualizado con exito", 
     response_model=UserResponse)
-async def actualizar_usuario_endpoint(
+async def actualizar_usuario_patch_endpoint(
     usuario_id: int,
     usuario: UserPatch,
     db: Session = Depends(get_db)

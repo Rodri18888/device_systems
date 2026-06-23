@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.database.connection import Base
 
+
 class User(Base):
     __tablename__ = "users"
 
@@ -13,4 +14,4 @@ class User(Base):
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    loans = relationship("Loan", back_populates="users")
+    loans = relationship("Loan", back_populates="user")

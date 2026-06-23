@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Request
-from app.routes import user_routes
+from app.routes import user_routes, device_routes, loan_routes
+import app.models
 
 # Crear una instancia de la aplicación FastAPI
 app = FastAPI(
@@ -21,7 +22,12 @@ async def agregar_cabeceras(request: Request, call_next):
 app.include_router(
     user_routes.router
 )
-
+app.include_router(
+    device_routes.router
+)
+app.include_router(
+    loan_routes.router
+)
 # Definir una ruta básica
 @app.get("/",
     summary="Ruta basica",
