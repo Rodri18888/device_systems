@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 
 class DeviceCreate(BaseModel):
     name: str = Field(min_length=3)
-    serial_number: int
+    serial_number: str = Field(min_length=3)
     device_type: str = Field(min_length=3)
     brand:  str = Field(min_length=3)
     is_available: bool
@@ -12,7 +12,7 @@ class DeviceCreate(BaseModel):
 
 class DeviceUpdate(BaseModel):
     name: str = Field(min_length=3)
-    serial_number: Optional[int] = None
+    serial_number: Optional[str] = None
     device_type: str = Field(min_length=3)
     brand:  str = Field(min_length=3)
     is_available: bool
@@ -20,7 +20,7 @@ class DeviceUpdate(BaseModel):
 
 class DevicePatch(BaseModel):
     name: Optional[str] = Field(default=None, min_length=3)
-    serial_number: Optional[int] = None
+    serial_number: Optional[str] = None
     device_type: Optional[str] = Field(default=None, min_length=3)
     brand:  Optional[str] = Field(default=None, min_length=3)
     is_available: Optional[bool] = None
@@ -29,7 +29,7 @@ class DevicePatch(BaseModel):
 class DeviceResponse(BaseModel):
     id: int
     name: str 
-    serial_number: int
+    serial_number: str
     device_type: str 
     brand:  str 
     is_available: bool = True
