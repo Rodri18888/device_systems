@@ -5,6 +5,8 @@ from app.services.device_service import *
 from app.dependencies.database_dependencies import get_db
 from app.database.connection import engine, Base
 from typing import List
+from app.dependencies.auth_dependencies import require_admin_or_support, require_admin
+from app.models.user_model import User
 
 Base.metadata.create_all(bind=engine)
 
@@ -49,7 +51,7 @@ async def obtener_dispositivo_endpoint(dispositivo_id: int, db: Session = Depend
     response_description="Dispositivo creado con exito",
     status_code=status.HTTP_201_CREATED,
     response_model=DeviceResponse)
-async def crear_dispositivo_endpoint(device: DeviceCreate, db: Session = Depends(get_db)):
+async def crear_dispositivo_endpoint(device: DeviceCreate, db: Session = Depends(get_db), _: User = Depends(require_admin_or_support)):
     serial_existente = db.query(Device).filter(Device.serial_number == device.serial_number).first()
     if serial_existente:
         raise HTTPException(status_code=400, detail="Numero de serie duplicado")
@@ -68,7 +70,8 @@ async def crear_dispositivo_endpoint(device: DeviceCreate, db: Session = Depends
 async def actualizar_dispositivo_endpoint(
     dispositivo_id: int,
     device: DeviceUpdate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    _: User = Depends(require_admin_or_support)
 ):
     db_dispositivo = actualizar_dispositivo(db=db, dispositivo_id=dispositivo_id, device_data=device)
     if db_dispositivo is None:
@@ -86,7 +89,8 @@ async def actualizar_dispositivo_endpoint(
 async def actualizar_dispositivo_parcial_endpoint(
     dispositivo_id: int,
     device: DevicePatch,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    _: User = Depends(require_admin_or_support)
 ):
     db_dispositivo = obtener_dispositivo_id(db=db, dispositivo_id=dispositivo_id)
     if db_dispositivo is None:
@@ -103,7 +107,7 @@ async def actualizar_dispositivo_parcial_endpoint(
     description="Elimina un dispositivo del sistema segun la id indicada",
     response_description="Dispositivo eliminado con exito",
     status_code=status.HTTP_204_NO_CONTENT)
-async def eliminar_dispositivo_endpoint(dispositivo_id: int, db: Session = Depends(get_db)):
+async def eliminar_dispositivo_endpoint(dispositivo_id: int, db: Session = Depends(get_db), _: User = Depends(require_admin)):
     eliminado = eliminar_dispositivo(db=db, dispositivo_id=dispositivo_id)
     if not eliminado:
         raise HTTPException(status_code=404, detail="Dispositivo no encontrado")

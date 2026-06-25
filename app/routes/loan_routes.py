@@ -14,6 +14,7 @@ from app.services.loan_service import (
 from app.models.user_model import User
 from app.models.device_model import Device
 from app.dependencies.database_dependencies import get_db
+from app.dependencies.auth_dependencies import require_admin_or_support, get_current_active_user
 
 router = APIRouter()
 
@@ -52,7 +53,8 @@ async def obtener_prestamos_detalle_endpoint(
     status: Optional[str] = None,
     user_email: Optional[str] = None,
     device_type: Optional[str] = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    _: User = Depends(require_admin_or_support)
 ):
     return obtener_prestamos_detalle(db, status=status, user_email=user_email, device_type=device_type)
 
@@ -77,7 +79,7 @@ async def obtener_prestamo_endpoint(loan_id: int, db: Session = Depends(get_db))
     response_description="Prestamo creado con exito",
     status_code=status.HTTP_201_CREATED,
     response_model=LoanResponse)
-async def crear_prestamo_endpoint(loan: LoanCreate, db: Session = Depends(get_db)):
+async def crear_prestamo_endpoint(loan: LoanCreate, db: Session = Depends(get_db), _: User = Depends(get_current_active_user)):
     usuario = db.query(User).filter(User.id == loan.user_id).first()
     if not usuario:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
@@ -98,7 +100,7 @@ async def crear_prestamo_endpoint(loan: LoanCreate, db: Session = Depends(get_db
     description="Marca el prestamo como returned, asigna fecha de devolucion y libera el dispositivo",
     response_description="Devolucion registrada con exito",
     response_model=LoanResponse)
-async def devolver_prestamo_endpoint(loan_id: int, db: Session = Depends(get_db)):
+async def devolver_prestamo_endpoint(loan_id: int, db: Session = Depends(get_db), _: User = Depends(require_admin_or_support)):
     db_loan = devolver_prestamo(db=db, loan_id=loan_id)
     if db_loan is None:
         raise HTTPException(status_code=404, detail="Prestamo no encontrado")

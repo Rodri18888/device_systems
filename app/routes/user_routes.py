@@ -5,6 +5,8 @@ from app.services.user_service import *
 from app.dependencies.database_dependencies import get_db
 from app.database.connection import engine, Base
 from typing import List
+from app.dependencies.auth_dependencies import get_current_active_user
+
 
 Base.metadata.create_all(bind=engine)
 
@@ -19,7 +21,7 @@ router = APIRouter()
     description="Obtiene cada usuario del sistema con su informacion",
     response_description="Usuarios obtenidos con exito",
     response_model=list[UserResponse])
-async def obtener_usuarios_endpoint(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+async def obtener_usuarios_endpoint(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), _: User = Depends(get_current_active_user)):
      users = obtener_usuarios(db, skip=skip, limit=limit)
      return users
     
@@ -32,7 +34,7 @@ async def obtener_usuarios_endpoint(skip: int = 0, limit: int = 100, db: Session
     description="Obtiene un usuario segun la id indicada en la ruta",
     response_description="Usuario obtenido con exito", 
     response_model=UserResponse)
-async def obtener_usuario_endpoint(usuario_id: int, db: Session = Depends(get_db)):
+async def obtener_usuario_endpoint(usuario_id: int, db: Session = Depends(get_db), _: User = Depends(get_current_active_user)):
     db_usuario = obtener_usuario_id(db=db, usuario_id=usuario_id)
     if db_usuario is None:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
@@ -106,7 +108,7 @@ async def actualizar_usuario_patch_endpoint(
     description="Elimina un usuario del sistema segun la id indicada",
     response_description="Usuario eliminado con exito", 
     status_code=status.HTTP_204_NO_CONTENT)
-async def eliminar_usuario_endpoint(usuario_id: int, db: Session = Depends(get_db)):
+async def eliminar_usuario_endpoint(usuario_id: int, db: Session = Depends(get_db), ):
     eliminado = eliminar_usuario(db=db, usuario_id=usuario_id)
     if not eliminado:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
@@ -122,7 +124,7 @@ async def eliminar_usuario_endpoint(usuario_id: int, db: Session = Depends(get_d
     description="Obtiene los usuarios según el rol indicado en la ruta",
     response_description="Usuarios obtenidos con éxito", 
     response_model=List[UserResponse]) 
-async def filtro_rol_endpoint(usuario_role: str, db: Session = Depends(get_db)):
+async def filtro_rol_endpoint(usuario_role: str, db: Session = Depends(get_db), _: User = Depends(get_current_active_user)):
     return filtro_rol(db=db, usuario_rol=usuario_role)
 
 
@@ -131,7 +133,7 @@ async def filtro_rol_endpoint(usuario_role: str, db: Session = Depends(get_db)):
     description="Obtiene los usuarios según el estado indicado en la ruta",
     response_description="Usuarios obtenidos con éxito", 
     response_model=List[UserResponse]) 
-async def filtro_estado_endpoint(usuario_state: bool, db: Session = Depends(get_db)):
+async def filtro_estado_endpoint(usuario_state: bool, db: Session = Depends(get_db), _: User = Depends(get_current_active_user)):
     return filtro_estado(db=db, usuario_estado=usuario_state)
 
 ##GET /users/search/created_at
@@ -141,5 +143,5 @@ async def filtro_estado_endpoint(usuario_state: bool, db: Session = Depends(get_
     description="Obtiene todos los usuarios ordenados de forma ascendente segun su fecha de creacion",
     response_description="Usuarios obtenidos con éxito", 
     response_model=List[UserResponse]) 
-async def usuarios_fecha_creacion_endpoint(db: Session = Depends(get_db)):
+async def usuarios_fecha_creacion_endpoint(db: Session = Depends(get_db), _: User = Depends(get_current_active_user)):
     return usuarios_fecha_creacion(db=db)
