@@ -10,6 +10,7 @@ def crear_usuario(db: Session, usuario_data: UserCreate):
     db_usuario = User(
         name=usuario_data.name,
         email=usuario_data.email,
+        hashed_password=usuario_data.hashed_password,
         role=usuario_data.role,
         is_active=usuario_data.is_active
     )
@@ -50,6 +51,7 @@ def actualizar_usuario(db: Session, usuario_id: int, usuario_data: UserUpdate):
     if db_usuario:
         db_usuario.name = usuario_data.name
         db_usuario.email = usuario_data.email
+        db_usuario.hashed_password = usuario_data.hashed_password
         db_usuario.role = usuario_data.role
         db_usuario.is_active = usuario_data.is_active
 

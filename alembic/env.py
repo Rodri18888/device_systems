@@ -2,6 +2,8 @@
 from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
 from alembic import context
+from app.database.connection import Base
+import app.models
 
 # Importamos nuestros modelos
 from app.database.connection import Base
