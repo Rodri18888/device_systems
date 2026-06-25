@@ -1,4 +1,4 @@
-from fastapi import APIRouter, status, Depends, Response, HTTPException
+from fastapi import APIRouter, status, Depends, Response, HTTPException, Request
 from app.schemas.user_schema import UserCreate, UserPatch, UserResponse, UserUpdate, roles
 from sqlalchemy.orm import Session
 from app.services.user_service import *
@@ -6,7 +6,7 @@ from app.dependencies.database_dependencies import get_db
 from app.database.connection import engine, Base
 from typing import List
 from app.dependencies.auth_dependencies import get_current_active_user
-from slowapi import Limiter
+from app.limiter import limiter
 
 
 Base.metadata.create_all(bind=engine)
@@ -22,8 +22,8 @@ router = APIRouter()
     description="Obtiene cada usuario del sistema con su informacion",
     response_description="Usuarios obtenidos con exito",
     response_model=list[UserResponse])
-@Limiter.limit("30/minute")
-async def obtener_usuarios_endpoint(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), _: User = Depends(get_current_active_user)):
+@limiter.limit("30/minute")
+async def obtener_usuarios_endpoint(request: Request, skip: int = 0, limit: int = 100, db: Session = Depends(get_db), _: User = Depends(get_current_active_user)):
      users = obtener_usuarios(db, skip=skip, limit=limit)
      return users
     

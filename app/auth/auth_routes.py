@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from app.schemas.auth_schema import UserRegister, Token
@@ -7,7 +7,7 @@ from app.models.user_model import User
 from app.auth.security import get_password_hash, verify_password, create_access_token
 from app.dependencies.database_dependencies import get_db
 from app.dependencies.auth_dependencies import get_current_active_user
-from slowapi import Limiter
+from app.limiter import limiter
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
@@ -16,8 +16,8 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
     summary="Registrar un nuevo usuario",
     status_code=status.HTTP_201_CREATED,
     response_model=UserResponse)
-@Limiter.limit("3/minute")    
-async def register(usuario: UserRegister, db: Session = Depends(get_db)):
+@limiter.limit("3/minute")    
+async def register(request: Request, usuario: UserRegister, db: Session = Depends(get_db)):
     existente = db.query(User).filter(User.email == usuario.email).first()
     if existente:
         raise HTTPException(status_code=400, detail="Email ya registrado")
@@ -37,8 +37,9 @@ async def register(usuario: UserRegister, db: Session = Depends(get_db)):
 @router.post("/login",
     summary="Iniciar sesion y obtener token JWT",
     response_model=Token)
-@Limiter.limit("5/minute")
+@limiter.limit("5/minute")
 async def login(
+    request: Request,
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
 ):

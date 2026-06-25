@@ -14,14 +14,12 @@ from app.routes.device_routes import router as device_router
 from app.routes.loan_routes import router as loan_router
 from app.auth.auth_routes import router as auth_router
 from app.database.connection import engine, Base
+from app.limiter import limiter
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 Base.metadata.create_all(bind=engine)
-
-# Rate limiter
-limiter = Limiter(key_func=get_remote_address)
 
 app = FastAPI(
     title="device_systems API",

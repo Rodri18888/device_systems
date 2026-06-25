@@ -1,4 +1,4 @@
-from fastapi import APIRouter, status, Depends, Response, HTTPException
+from fastapi import APIRouter, status, Depends, Response, HTTPException, Request
 from sqlalchemy.orm import Session
 from typing import Optional
 from app.schemas.loan_schema import LoanCreate, LoanResponse, LoanDetailResponse
@@ -15,7 +15,7 @@ from app.models.user_model import User
 from app.models.device_model import Device
 from app.dependencies.database_dependencies import get_db
 from app.dependencies.auth_dependencies import require_admin_or_support, get_current_active_user
-from slowapi import Limiter
+from app.limiter import limiter
 
 router = APIRouter()
 
@@ -80,8 +80,8 @@ async def obtener_prestamo_endpoint(loan_id: int, db: Session = Depends(get_db))
     response_description="Prestamo creado con exito",
     status_code=status.HTTP_201_CREATED,
     response_model=LoanResponse)
-@Limiter.limit("10/minute")
-async def crear_prestamo_endpoint(loan: LoanCreate, db: Session = Depends(get_db), _: User = Depends(get_current_active_user)):
+@limiter.limit("10/minute")
+async def crear_prestamo_endpoint(request: Request, loan: LoanCreate, db: Session = Depends(get_db), _: User = Depends(get_current_active_user)):
     usuario = db.query(User).filter(User.id == loan.user_id).first()
     if not usuario:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
