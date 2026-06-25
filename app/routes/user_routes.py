@@ -6,6 +6,7 @@ from app.dependencies.database_dependencies import get_db
 from app.database.connection import engine, Base
 from typing import List
 from app.dependencies.auth_dependencies import get_current_active_user
+from slowapi import Limiter
 
 
 Base.metadata.create_all(bind=engine)
@@ -21,6 +22,7 @@ router = APIRouter()
     description="Obtiene cada usuario del sistema con su informacion",
     response_description="Usuarios obtenidos con exito",
     response_model=list[UserResponse])
+@Limiter.limit("30/minute")
 async def obtener_usuarios_endpoint(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), _: User = Depends(get_current_active_user)):
      users = obtener_usuarios(db, skip=skip, limit=limit)
      return users
