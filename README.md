@@ -113,3 +113,132 @@ Usando los endpoints enviando datos erroneos podemos probar las validaciones
 ## Diferencia entre modelo sqlalchemy y schema pydantic
 
 El modelo SQLAlchemy (ORM) define la estructura de las tablas, relaciones y tipos de datos directamente en la base de datos. El esquema Pydantic (DTO) se encarga de la validación, serialización y documentación de los datos que entran y salen de la API (solicitudes/respuestas).
+
+
+# Evolucion del proyecto: Usuarios, Dispositivos y Prestamos
+
+El proyecto sigue creciendo, ahora se agregan los modelos de Dispositivo y Prestamo, junto con sus endpoints y relaciones. Para manejar los cambios en la base de datos se integra Alembic como herramienta de migraciones.
+
+## Inicializacion de Alembic
+
+Alembic se inicializa con alembic init para generar la carpeta de migraciones y el archivo alembic.ini con la configuracion base.
+
+
+## Creacion de migracion
+
+Con alembic revision --autogenerate Alembic detecta los cambios en los modelos y genera automaticamente el script de migracion correspondiente.
+
+![alembic revision](img/alembic_autogenerate_captura.PNG)
+
+## Aplicacion de migracion
+
+Con alembic upgrade head se aplican los cambios pendientes a la base de datos.
+
+![alembic upgrade head](img/alembic_upgrade_head_captura.PNG)
+
+## Estructura de tablas generadas
+
+Las tres tablas quedan creadas con sus columnas y relaciones correctamente reflejadas en la base de datos.
+
+![estructura de tablas](img/tablas_alembic.PNG)
+
+## Swagger UI
+
+Se puede visualizar la totalidad de los endpoints disponibles directamente desde la interfaz de Swagger.
+
+
+## Evidencia de creacion de registros
+
+Se crea un dispositivo y un prestamo para verificar que los modelos funcionan correctamente y se relacionan entre si.
+
+![creacion de dispositivo](img/peticiondevice.PNG)
+
+![creacion de prestamo](img/peticionloan.PNG)
+
+## Consultas con joins
+
+Los endpoints de prestamos devuelven informacion combinada de las tablas relacionadas usando joins, evitando tener que hacer multiples peticiones.
+
+![consulta con join](img/peticionloan2.PNG)
+
+
+## Devolucion de dispositivo
+
+Al registrar la devolucion de un dispositivo, el prestamo se actualiza y el dispositivo vuelve a estar disponible.
+
+![devolucion](img/peticionloan3.PNG)
+
+## Reflexion
+
+Las migraciones con Alembic permiten evolucionar el esquema de la base de datos de forma controlada sin perder datos ni tener que recrear tablas manualmente. Las relaciones entre modelos y las consultas con joins son fundamentales para construir APIs que devuelvan informacion util y coherente sin multiplicar innecesariamente las peticiones al servidor.
+
+
+# Evolucion del proyecto: Autenticacion y Seguridad
+
+En esta fase se agrega autenticacion con JWT, control de acceso por roles, middleware de cabeceras, rate limiting con slowapi y configuracion de CORS.
+
+## Estructura del proyecto
+
+La estructura del proyecto se reorganiza para separar las responsabilidades de autenticacion del resto de los modulos.
+
+![estructura del proyecto](img/auth1.png)
+
+## Migracion Alembic aplicada
+
+Se genera y aplica una nueva migracion para agregar los campos necesarios al modelo de usuario para soportar autenticacion.
+
+
+## Registro de usuario
+
+El endpoint POST /auth/register permite crear un usuario nuevo. La contrasena se almacena hasheada, nunca en texto plano.
+
+![registro de usuario](img/auth2.png)
+
+## Login y token generado
+
+El endpoint POST /auth/login valida las credenciales y devuelve un token JWT que se debe usar en las siguientes peticiones.
+
+![login y token](img/auth3.png)
+
+## Endpoint /auth/me
+
+Con el token valido en la cabecera Authorization, el endpoint GET /auth/me devuelve la informacion del usuario autenticado.
+
+![auth me](img/auth4.png)
+
+## Acceso sin token
+
+Intentar acceder a un endpoint protegido sin token devuelve un error 401 Unauthorized.
+
+![acceso sin token](img/auth5.png)
+
+## Acceso con rol no permitido
+
+Si el usuario autenticado no tiene el rol requerido para un endpoint, la API devuelve un error 403 Forbidden.
+
+![rol no permitido](img/auth6.png)
+
+## Swagger con OAuth2
+
+Swagger UI muestra el boton de autorizacion para ingresar el token JWT y probar los endpoints protegidos directamente desde la interfaz.
+
+![swagger oauth2](img/auth7.png)
+
+## Cabeceras del middleware
+
+El middleware agrega cabeceras personalizadas a cada respuesta. Esto se puede verificar en la seccion de headers de cualquier peticion.
+
+
+## Rate limiting
+
+slowapi limita la cantidad de peticiones que un cliente puede hacer en un periodo de tiempo. Al superar el limite la API devuelve un error 429 Too Many Requests.
+
+
+## CORS configurado
+
+CORS se configura en FastAPI usando CORSMiddleware, definiendo los origenes permitidos, los metodos HTTP aceptados y si se permiten credenciales. En este proyecto se configuro para aceptar peticiones desde cualquier origen durante el desarrollo, lo cual deberia restringirse a dominios especificos en un entorno de produccion.
+
+## Reflexion final
+
+La seguridad en una API REST no es opcional ni se agrega al final. JWT permite autenticar usuarios sin guardar estado en el servidor. El control de roles evita que usuarios accedan a recursos para los que no tienen permiso. El middleware y el rate limiting protegen la API de abusos y exponen informacion util por cabeceras. CORS controla que origenes pueden consumir la API desde el navegador. Cada una de estas capas tiene una responsabilidad distinta y todas son necesarias para que una API sea minimamente robusta en un entorno real.
+
